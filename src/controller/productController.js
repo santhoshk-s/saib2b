@@ -23,7 +23,7 @@ exports.addProduct = async (req, res) => {
         return res.status(400).json({ error: err.message });
       }
       
-      const { name, price, quantity, description, brand, category,categories } = req.body;
+      const { name, price, quantity, description, brand, category,categories,productId } = req.body;
 
       const uploadStream = bucket.openUploadStream(req.file.originalname);
       uploadStream.end(req.file.buffer);
@@ -35,6 +35,7 @@ exports.addProduct = async (req, res) => {
           image: `uploads/${req.file.originalname}`,
           name,
           price,
+          productId,
           quantity,
           description,
           brand,
@@ -118,4 +119,42 @@ exports.getImage = (req, res) => {
     console.error('Error fetching image:', error);
     res.status(404).json({ error: 'Image not found' });
   });
+};
+
+
+// Controller to update product price based on productId field
+exports.updateProductPrice = async (req, res) => {
+  const { productId } = req.params;
+  const { newPrice } = req.body;
+
+  try {
+    const product = await Product.findOne({ productId: productId });
+
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    // Update the price
+    product.price = newPrice;
+    await product.save();
+
+    res.status(200).json({ message: 'Product price updated successfully', product });
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating product price', error: error.message });
+  }
+};
+
+exports.getProductByProductId = async (req, res) => {
+  const { productId } = req.params;
+
+  try {
+    const product = await Product.findOne({productId:productId}); 
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    res.status(200).json(product);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching product', error: error.message });
+  }
 };

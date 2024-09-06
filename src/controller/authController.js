@@ -153,12 +153,22 @@ exports.uploadProfileImage = async (req, res) => {
 module.exports.setAvatar = async (req, res, next) => {
   try {
     const userId = req.params.id;
-    // console.log(userId)
     const avatarImage = req.body.image;
-    const userData = await User.findByIdAndUpdate(userId, {
-      isAvatarImageSet: true,
-      avatarImage,
-    });
+
+    // Find the user and update avatar image
+    const userData = await User.findByIdAndUpdate(
+      userId,
+      {
+        isAvatarImageSet: true,
+        avatarImage,
+      },
+      { new: true } // Ensure the updated document is returned
+    );
+
+    if (!userData) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
     return res.json({
       isSet: userData.isAvatarImageSet,
       image: userData.avatarImage,
@@ -167,6 +177,7 @@ module.exports.setAvatar = async (req, res, next) => {
     next(error);
   }
 };
+
 
 module.exports.getAllUsers = async (req, res, next) => {
   try {

@@ -5,21 +5,31 @@ module.exports.addMessage = async (req, res, next) => {
     console.log("from", from);
     console.log("to", to);
     console.log("message", message);
-    console.log("finalamunt", finalamount);
+    console.log("finalamount", finalamount);
+    
     let messageContent = message;
 
-    // If the role is 'admin' and finalamount is provided
-    if (role==="admin" && finalamount) {
-      messageContent = `Final Amount: ${finalamount}`;
+    const extractNumbers = (text) => {
+      return text.match(/\d+/g); 
+    };
+
+    const numericValues = extractNumbers(message);
+
+    // If the role is 'seller' and finalamount is provided
+    if (role === "seller" && finalamount) {
+      messageContent = `Final Amount:${numericValues}`;
     }
 
     const data = await messageModel.create({
       message: { text: messageContent },
       users: [from, to],
       sender: from,
+      numericValues: numericValues, // Optionally store extracted numbers
     });
 
-    if (data) return res.json({ msg: "Message added successfully" });
+    if (data) {
+      return res.json({ msg: "Message added successfully", numericValues });
+    }
     return res.json({ msg: "Failed to add message in database" });
   } catch (error) {
     next(error);

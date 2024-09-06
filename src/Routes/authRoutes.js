@@ -1,5 +1,5 @@
 const express = require('express');
-const { register, login, logout, getUserData,getUserById,updateUser,uploadProfileImage,setAvatar,getAllUsers } = require('../controller/authController');
+const { register, login, logout, getUserData,getUserById,updateUser,uploadProfileImage,setAvatar,getAllUsers,deleteUser } = require('../controller/authController');
 const { protect } = require('../middleware/authMiddleware'); // Ensure this path is correct
 const {upload} =require('../storage/profilestorage')
 const router = express.Router();
@@ -11,6 +11,7 @@ router.post("/setAvatar/:id", setAvatar);
 router.get('/user', protect, getUserData);
 router.get("/allusers/:id", getAllUsers);
 router.get('/user/:id',getUserById );
+router.delete('/delete/:id',deleteUser );
 router.put('/user/:id', upload.single('profile'), updateUser);
 
 // router.put('/user/profile/:id', upload.single('file'), uploadProfileImage);

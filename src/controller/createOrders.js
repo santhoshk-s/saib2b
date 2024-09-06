@@ -57,5 +57,23 @@ const updateOrderToDelivered = async (req, res) => {
   }
 };
 
+const updateOrderPaid = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
 
-module.exports = { createOrder,getOrders,updateOrderToDelivered };
+    if (order) {
+      order.isPaid = true;
+      order.PaidAt = Date.now();
+
+      const updatedOrder = await order.save();
+      res.json(updatedOrder);
+    } else {
+      res.status(404);
+      res.json({ message: 'Order not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+module.exports = { createOrder,getOrders,updateOrderToDelivered,updateOrderPaid };
